@@ -1,6 +1,6 @@
 
-#currentBuild.displayName = "Test Pipeline - Project 1"
-#currentBuild.description = "Test Pipeline for Project 1."
+//currentBuild.displayName = "Test Pipeline - Project 1"
+//currentBuild.description = "Test Pipeline for Project 1."
 
 pipeline {
   agent any
