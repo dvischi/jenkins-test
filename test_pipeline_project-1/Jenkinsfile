@@ -1,0 +1,41 @@
+
+#currentBuild.displayName = "Test Pipeline - Project 1"
+#currentBuild.description = "Test Pipeline for Project 1."
+
+pipeline {
+  agent any
+
+  stages {
+    stage('Cloning Git') {
+      steps {
+        git("https://github.com/dvischi/simple_py_test.git")
+      }
+    }
+    stage('Generate Code Quality Reports') {
+      steps{
+        sh("""
+          export PYTHONPATH='.'
+          
+          pip3 install -r requirements-dev.txt
+          
+          python3 -m pylint -f parseable project1 | tee pylint.out
+          python3 -m pycodestyle project1
+          
+          python3 -m pytest tests/authentication_tests.py --junitxml pytest.xml
+          # python3 setup.py test -a "--junitxml pytest.xml"
+          
+          python3 -m coverage run tests/authentication_tests.py
+          # python3 -m coverage run setup.py test
+          python3 -m coverage xml
+        """)
+      }
+    }
+    stage('Publish Code Quality Reports') {
+      steps{
+        recordIssues(tools: [pyLint(pattern: 'pylint.out')])
+        junit("pytest.xml")
+        cobertura(coberturaReportFile: "coverage.xml")
+      }
+    }
+  }
+}
